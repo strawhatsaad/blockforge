@@ -1,7 +1,112 @@
 ---
-// import { getCollection } from 'astro:content';
+import Card from "../../components/Card";
+import CutCornerButton from "../../components/CutCornerButton";
+import Tag from "../../components/Tag";
+import DefaultLayout from "../../layouts/Default.astro";
+import { getCollection } from "astro:content";
+import { getPostColorFromCategory } from "../../utils/postUtils";
+import { twMerge } from "tailwind-merge";
+import { motion } from "framer-motion";
+import InteriorHero from "../../components/InteriorHero.astro";
+import InteriorContent from "../../components/InteriorContent.astro";
 
-// const posts = (await getCollection('blog')).sort(
-// 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-// );
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const latestPost = posts[0];
 ---
+
+<DefaultLayout>
+  <InteriorHero>
+    <div class="max-w-3xl mx-auto">
+      <p
+        class="uppercase font-extrabold text-center text-zinc-500 tracking-wider"
+      >
+        Latest Post
+      </p>
+      <h1
+        class="font-heading font-black text-5xl md:text-6xl lg:text-7xl text-center mt-4"
+      >
+        {latestPost.data.title}
+      </h1>
+      <p
+        class="text-center text-xl md:text-2xl mt-6 text-zinc-400 max-w-xl mx-auto"
+      >
+        {latestPost.data.description}
+      </p>
+      <div class="flex justify-center mt-10">
+        <a href={`/blog/${latestPost.slug}`}>
+          <CutCornerButton>Read More</CutCornerButton>
+        </a>
+      </div>
+    </div>
+  </InteriorHero>
+  <InteriorContent>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="flex flex-col gap-8 lg:gap-12">
+        {
+          posts.map(
+            (
+              { data: { category, title, description }, slug }: any,
+              postIndex: number
+            ) => (
+              <motion.a
+                href={`/blog/${slug}`}
+                className={twMerge(
+                  postIndex % 2 === 0 ? "" : "block md:hidden"
+                )}
+                client:load
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.5, ease: "easeIn" }}
+              >
+                <Card
+                  color={getPostColorFromCategory(category)}
+                  buttonText="Read More"
+                >
+                  <Tag color={getPostColorFromCategory(category)}>
+                    {category}
+                  </Tag>
+                  <h2 class="font-heading font-black text-4xl mt-4">{title}</h2>
+                  <p class="text-lg mt-6 text-zinc-400">{description}</p>
+                </Card>
+              </motion.a>
+            )
+          )
+        }
+      </div>
+      <div class="hidden md:flex flex-col gap-8 lg:gap-12 mt-24">
+        {
+          posts.map(
+            (
+              { data: { category, title, description }, slug }: any,
+              postIndex: number
+            ) => (
+              <motion.a
+                href={`/blog/${slug}`}
+                className={twMerge(postIndex % 2 === 0 ? "hidden" : "")}
+                client:load
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.7 }}
+                transition={{ duration: 0.5, ease: "easeIn" }}
+              >
+                <Card
+                  color={getPostColorFromCategory(category)}
+                  buttonText="Read More"
+                >
+                  <Tag color={getPostColorFromCategory(category)}>
+                    {category}
+                  </Tag>
+                  <h2 class="font-heading font-black text-4xl mt-4">{title}</h2>
+                  <p class="text-lg mt-6 text-zinc-400">{description}</p>
+                </Card>
+              </motion.a>
+            )
+          )
+        }
+      </div>
+    </div>
+  </InteriorContent>
+</DefaultLayout>

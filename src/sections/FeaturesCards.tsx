@@ -48,7 +48,7 @@ const FeaturesCardsSection = () => {
       setSelectedCardIndex((curr) =>
         curr === cardData.length - 1 ? 0 : curr + 1
       );
-    }, 3000);
+    }, 4000);
     return () => {
       clearTimeout(timeout);
     };
